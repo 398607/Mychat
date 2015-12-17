@@ -31,7 +31,7 @@ public class PlotManager : MonoBehaviour {
 								  new PlotUnit(0.7f, new SpeechLine("Saber", "我的剑即是你的剑，我将为您赢得圣杯。"), 1, 0),
 								  new PlotUnit(1.0f, new SpeechLine("Saber", "……也许我错误地降临于此，但即使这样我也不得不战斗。"), 1, 1),
 								  new PlotUnit(0.4f, new SpeechLine("Saber", "………………"), 1, 2),
-								  new PlotUnit(1.5f, new SpeechLine("Saber", "（无言地挥剑）"), 1, 2) };
+								  new PlotUnit(1.5f, new SystemLine("你被砍死了。"), 1, 2) };
 	}
 
 	public GameManager.State GetGMState() {

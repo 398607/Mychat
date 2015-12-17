@@ -13,8 +13,15 @@ public class GameManager : MonoBehaviour {
 	private static GameManager _instance = null;
 
 	// show area
-	private Text textBoard;
+	private Transform scrollTransorm;
 	private Text typeBoard;
+
+	// speech usage
+	[HideInInspector]
+	private Speech speech_ins;
+	private SystemMessage sysMessage_ins;
+	int system_count;
+	int speech_count;
 
 	// state
 	public State state;
@@ -28,16 +35,30 @@ public class GameManager : MonoBehaviour {
 	private int now_choice_max;
 	private ChoiceLine nowChoiceLine;
 
-	private static Text TextBoard() {
-		return _instance.textBoard;
-	}
-
 	private static Text TypeBoard() {
 		return _instance.typeBoard;
 	}
 
 	public static void GetNewSpeech(SpeechLine speechLine) {
-		TextBoard().text += speechLine._person + " : " + speechLine._content + "\n";
+
+		Speech spe = Instantiate(_instance.speech_ins);
+		spe.transform.SetParent(_instance.scrollTransorm);
+		// spe.transform.SetAsLastSibling();
+		spe.SetText(speechLine._content);
+		
+		spe.transform.position = new Vector3(_instance.scrollTransorm.position.x + 40, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+			
+		_instance.speech_count++;
+	}
+
+	public static void GetNewSystemMessage(SystemLine sysLine) {
+		SystemMessage smsg = Instantiate(_instance.sysMessage_ins);
+		smsg.transform.SetParent(_instance.scrollTransorm);
+		smsg.SetText(sysLine._content);
+
+		smsg.transform.position = new Vector3(_instance.scrollTransorm.position.x + 240, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+
+		_instance.system_count++;
 	}
 
 	public static void GetNewChoice(ChoiceLine choiceLine) {
@@ -51,9 +72,7 @@ public class GameManager : MonoBehaviour {
 		ShowChoiceBoard();
 	}
 
-	public static void ClearDialog() {
-		TextBoard().text = "";
-	}
+	
 
 	public static void ClearTypeBoard() {
 		TypeBoard().text = "";
@@ -86,11 +105,15 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Init() {
-		_instance.textBoard = GameObject.Find("TextBoard").GetComponent<Text>();
-		_instance.typeBoard = GameObject.Find("TypeBoard").GetComponent<Text>();
-		ClearDialog();
+		typeBoard = GameObject.Find("TypeBoard").GetComponent<Text>();
 		ClearTypeBoard();
-		_instance.state = State.Flowing;
+		state = State.Flowing;
+
+		speech_ins = GameObject.FindObjectOfType<Speech>();
+		sysMessage_ins = FindObjectOfType<SystemMessage>();
+		scrollTransorm = GameObject.Find("Content").transform;
+		system_count = 0;
+		speech_count = 0;
 	}
 
 	// Use this for initialization
