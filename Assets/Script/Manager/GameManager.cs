@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour {
 		LinePrefab lp;
 		if (speechLine._person == "You") {
 			lp = Instantiate(_instance.youLine_ins);
-			lp.transform.position = new Vector3(_instance.scrollTransorm.position.x + Screen.width * 660 / 1024 - 20, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+			lp.transform.position = new Vector3(_instance.scrollTransorm.position.x + Screen.width * 655 / 1024, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
 		}
 		else {
 			lp = Instantiate(_instance.speech_ins);
@@ -156,7 +156,7 @@ public class GameManager : MonoBehaviour {
 
 			// symbol of now_choice
 			if (_instance.now_choice == i) {
-				TypeBoard().text += "  <--";
+				TypeBoard().text += "  ←";
 			}
 			TypeBoard().text += "\n";
 		}
