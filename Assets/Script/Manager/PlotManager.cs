@@ -26,12 +26,17 @@ public class PlotManager : MonoBehaviour {
 	private int nextLine_index;
 
 	public void LoadLineList() {
+
+		// TODO: load plot from file
 		unitList = new UnitList { new PlotUnit(0.2f, new SpeechLine("npc1", "嘿呀！竟然有人类出现了！")),
 								  new PlotUnit(1f, new SpeechLine("You", "这里是哪里……？")),
 								  new PlotUnit(1f, new SpeechLine("npc2", "嘿呀！这里是魔林村哦KI★RA！")),
 								  new PlotUnit(0.8f, new SystemLine("怪物弯下身拿起了一把斧头")),
+								  // affecting var[1]
 								  new PlotUnit(0.8f, new ChoiceLine(1, new ChoiceList {new Choice("∑你要干什么？！"), new Choice("（转身逃跑）")})),
-								  new PlotUnit(0.8f, new SpeechLine("npc3", "嘿呀！难得有人类来，我给你杀头猪做饭吧！"), 1, 0),
+								  // var[1] == 0
+								  new PlotUnit(0.8f, new SpeechLine("npc3", "别害怕嘿呀！难得有人类来，我给你杀头猪做饭吧！"), 1, 0),
+								  // var[1] == 1
 								  new PlotUnit(0.8f, new SpeechLine("npc3", "喂！你跑什么嘿呀~！"), 1, 1),
 								  new PlotUnit(0.8f, new SystemLine("怪物举着菜刀向你追来"), 1, 1)
 								};
@@ -41,6 +46,7 @@ public class PlotManager : MonoBehaviour {
 		return GameManager.GetState();
 	}
 
+	// handle next plot unit
 	public void SendLine() {
 		PlotUnit nextUnit = unitList[nextLine_index];
         if (GameManager.FitAsked(nextUnit._asked_var, nextUnit._asked_value)) {
@@ -64,6 +70,8 @@ public class PlotManager : MonoBehaviour {
 	void Update () {
 		if (GetGMState() == GameManager.State.Flowing && nextLine_index < unitList.Count) {
 			time += Time.deltaTime;
+
+			// handle next unit when time is ready
 			if (time > unitList[nextLine_index]._delay) {
 				SendLine();
 			}

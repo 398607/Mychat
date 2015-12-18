@@ -68,34 +68,38 @@ public class GameManager : MonoBehaviour {
 	private int now_choice_max;
 	private ChoiceLine nowChoiceLine;
 
+	// get the static typeBoard
 	private static Text TypeBoard() {
 		return _instance.typeBoard;
 	}
 
+	// handle new SpeechLine
 	public static void GetNewSpeech(SpeechLine speechLine) {
-
+		
+		// build line prefab 
 		LinePrefab lp;
 		if (speechLine._person == "You") {
 			lp = Instantiate(_instance.youLine_ins);
-			lp.transform.position = new Vector3(_instance.scrollTransorm.position.x + Screen.width * 660 / 768, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+			lp.transform.position = new Vector3(_instance.scrollTransorm.position.x + Screen.width * 660 / 1024 - 20, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
 		}
 		else {
 			lp = Instantiate(_instance.speech_ins);
 			lp.transform.position = new Vector3(_instance.scrollTransorm.position.x + 40, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
 		}
 
+		// set parent to scroll content, set text
 		lp.transform.SetParent(_instance.scrollTransorm);
 		lp.SetText(speechLine._content);
 
-		Debug.Log(speechLine._content.Length.ToString());
-
-		if (speechLine._content.Length > 12) { // vertical expand
+		// vertical expand when content is too long
+		if (speechLine._content.Length > 12) { 
 			Vector3 vec3 = lp.GetComponentInChildren<Button>().transform.localScale;
             lp.GetComponentInChildren<Button>().transform.localScale = new Vector3(vec3.x, vec3.y * (speechLine._content.Length / 12 + 1), vec3.z);
 			vec3 = lp.GetComponentInChildren<Text>().transform.localScale;
 			lp.GetComponentInChildren<Text>().transform.localScale = new Vector3(vec3.x, vec3.y / (speechLine._content.Length / 12 + 1), vec3.z); 
         }
 
+		// show speaker image
 		Image ins = _instance.imageManager.GetImageByName(speechLine._person);
 		if (ins != null) {
 			Image ime = Instantiate(ins);
@@ -103,19 +107,31 @@ public class GameManager : MonoBehaviour {
 			ime.transform.localPosition = new Vector3(0, 0, 0);
 		}
 		
+		// when hidden, scroll to show
+		if (lp.transform.position.y < 160) {
+			_instance.scrollTransorm.Translate(new Vector3(0, 70, 0));
+		}
+		
+		// update count
 		_instance.speech_count++;
 	}
 
+	// handle new SystemLine
 	public static void GetNewSystemMessage(SystemLine sysLine) {
 		SystemMessage smsg = Instantiate(_instance.sysMessage_ins);
 		smsg.transform.SetParent(_instance.scrollTransorm);
 		smsg.SetText(sysLine._content);
 
-		smsg.transform.position = new Vector3(_instance.scrollTransorm.position.x + 340 * Screen.width / 768, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+		smsg.transform.position = new Vector3(_instance.scrollTransorm.position.x + 350 * Screen.width / 1024, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+		
+		if (smsg.transform.position.y < 160) {
+			_instance.scrollTransorm.Translate(new Vector3(0, 50, 0));
+		}
 
 		_instance.system_count++;
 	}
 
+	// handle new ChoiceLine
 	public static void GetNewChoice(ChoiceLine choiceLine) {
 		_instance.state = State.WaitForChoice;
 
@@ -127,16 +143,18 @@ public class GameManager : MonoBehaviour {
 		ShowChoiceBoard();
 	}
 
-	
-
+	// clear TypeBoard
 	public static void ClearTypeBoard() {
 		TypeBoard().text = "";
 	}
 
+	// flush on TypeBoard
 	public static void ShowChoiceBoard() {
 		TypeBoard().text = "";
 		for (int i = 0; i < _instance.now_choice_max; i++) {
 			TypeBoard().text += _instance.nowChoiceLine._list[i]._content;
+
+			// symbol of now_choice
 			if (_instance.now_choice == i) {
 				TypeBoard().text += "  <--";
 			}
@@ -144,39 +162,59 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	// get user choice
 	public static void GetUserChoice() {
+		// adjust varible
 		_instance.global_varibles[_instance.now_affindex] = _instance.now_choice;
+
+		// show choice 
 		GetNewSpeech(new SpeechLine("You", _instance.nowChoiceLine._list[_instance.now_choice]._content));
+
+		// un-pause time flow
 		_instance.state = State.Flowing;
+
+		// clear typeboard
 		ClearTypeBoard();
 	}
 
+	// if the varible asked is OK
 	public static bool FitAsked(int ask_var, int ask_val) {
 		return _instance.global_varibles[ask_var] == ask_val;
 	}
 
+	// return current state of game
 	public static State GetState() {
 		return _instance.state;
 	}
 
 	void Init() {
+
+		// typeboard
 		typeBoard = GameObject.Find("TypeBoard").GetComponent<Text>();
 		ClearTypeBoard();
+
+		// state
 		state = State.Flowing;
 
+		// instance of line prefab
 		speech_ins = FindObjectOfType<Speech>();
 		youLine_ins = FindObjectOfType<YouLine>();
 		sysMessage_ins = FindObjectOfType<SystemMessage>();
+
+		// get scroll
 		scrollTransorm = GameObject.Find("Content").transform;
-		system_count = 0;
+        system_count = 0;
 		speech_count = 0;
 
+		// speaker image manager
 		imageManager = new ImageManager();
 		imageManager.LoadImage();
 	}
 
 	// Use this for initialization
 	void Start () {
+
+		// singleton
 		if (_instance == null) {
 			_instance = this;
 		}
@@ -189,7 +227,11 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+		// get user choice
 		if (state == State.WaitForChoice) {
+
+			// choice prev / next
 			if (Input.GetKeyDown(KeyCode.DownArrow) && now_choice < now_choice_max - 1) {
 				now_choice++;
 				ShowChoiceBoard();
@@ -198,6 +240,8 @@ public class GameManager : MonoBehaviour {
 				now_choice--;
 				ShowChoiceBoard();
 			}
+			
+			// chosen!
 			if (Input.GetKey(KeyCode.Return)) {
 				GetUserChoice();
 			}
