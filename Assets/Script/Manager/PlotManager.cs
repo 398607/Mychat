@@ -26,11 +26,11 @@ public class PlotManager : MonoBehaviour {
 	private int nextLine_index;
 
 	public void LoadLineList() {
-		unitList = new UnitList { new PlotUnit(0.2f, new SpeechLine("Saber", "你……就是我的Master么？")),
+		unitList = new UnitList { new PlotUnit(0.2f, new SpeechLine("npc1", "你……就是我的Master么？")),
 								  new PlotUnit(1.0f, new ChoiceLine(1, new ChoiceList {new Choice("在下正是你的Master。"), new Choice("你要找的人，并不是我。"), new Choice("和我没关系，我是来买薯片的。")})),
-								  new PlotUnit(0.7f, new SpeechLine("Saber", "我的剑即是你的剑，我将为您赢得圣杯。"), 1, 0),
-								  new PlotUnit(1.0f, new SpeechLine("Saber", "……也许我错误地降临于此，但即使这样我也不得不战斗。"), 1, 1),
-								  new PlotUnit(0.4f, new SpeechLine("Saber", "………………"), 1, 2),
+								  new PlotUnit(0.7f, new SpeechLine("npc2", "我的剑即是你的剑，我将为您赢得圣杯。"), 1, 0),
+								  new PlotUnit(1.0f, new SpeechLine("npc2", "……也许我错误地降临于此，但即使这样我也不得不战斗。"), 1, 1),
+								  new PlotUnit(0.4f, new SpeechLine("npc3", "………………"), 1, 2),
 								  new PlotUnit(1.5f, new SystemLine("你被砍死了。"), 1, 2) };
 	}
 

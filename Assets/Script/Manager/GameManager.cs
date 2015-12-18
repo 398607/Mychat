@@ -1,6 +1,36 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
+
+public class ImageManager {
+
+	public string[] nameList = new string[] { "You", "npc1", "npc2", "npc3"};
+	
+	public Dictionary<string, Image> dict;
+
+	public ImageManager() {
+		dict = new Dictionary<string, Image>();
+	}
+
+	public void LoadImage() {
+
+		foreach (string name in nameList) {
+			Image temp_ins = GameObject.Find(name).GetComponent<Image>();
+			dict.Add(name, temp_ins);
+		}
+
+	}
+
+	public Image GetImageByName(string name) {
+		if (dict.ContainsKey(name)) {
+			return dict[name];
+		}
+		else {
+			return null;
+		}
+	}
+}
 
 public class GameManager : MonoBehaviour {
 
@@ -17,11 +47,14 @@ public class GameManager : MonoBehaviour {
 	private Text typeBoard;
 
 	// speech usage
-	[HideInInspector]
 	private Speech speech_ins;
+	private YouLine youLine_ins;
 	private SystemMessage sysMessage_ins;
 	int system_count;
 	int speech_count;
+
+	// Image usage
+	private ImageManager imageManager;
 
 	// state
 	public State state;
@@ -41,13 +74,26 @@ public class GameManager : MonoBehaviour {
 
 	public static void GetNewSpeech(SpeechLine speechLine) {
 
-		Speech spe = Instantiate(_instance.speech_ins);
-		spe.transform.SetParent(_instance.scrollTransorm);
-		// spe.transform.SetAsLastSibling();
-		spe.SetText(speechLine._content);
+		LinePrefab lp;
+		if (speechLine._person == "You") {
+			lp = Instantiate(_instance.youLine_ins);
+			lp.transform.position = new Vector3(_instance.scrollTransorm.position.x + 660, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+		}
+		else {
+			lp = Instantiate(_instance.speech_ins);
+			lp.transform.position = new Vector3(_instance.scrollTransorm.position.x + 40, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+		}
+
+		lp.transform.SetParent(_instance.scrollTransorm);
+		lp.SetText(speechLine._content);
+
+		Image ins = _instance.imageManager.GetImageByName(speechLine._person);
+		if (ins != null) {
+			Image ime = Instantiate(ins);
+			ime.transform.SetParent(lp.transform);
+			ime.transform.localPosition = new Vector3(0, 0, 0);
+		}
 		
-		spe.transform.position = new Vector3(_instance.scrollTransorm.position.x + 40, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
-			
 		_instance.speech_count++;
 	}
 
@@ -109,11 +155,15 @@ public class GameManager : MonoBehaviour {
 		ClearTypeBoard();
 		state = State.Flowing;
 
-		speech_ins = GameObject.FindObjectOfType<Speech>();
+		speech_ins = FindObjectOfType<Speech>();
+		youLine_ins = FindObjectOfType<YouLine>();
 		sysMessage_ins = FindObjectOfType<SystemMessage>();
 		scrollTransorm = GameObject.Find("Content").transform;
 		system_count = 0;
 		speech_count = 0;
+
+		imageManager = new ImageManager();
+		imageManager.LoadImage();
 	}
 
 	// Use this for initialization
