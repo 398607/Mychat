@@ -77,7 +77,7 @@ public class GameManager : MonoBehaviour {
 		LinePrefab lp;
 		if (speechLine._person == "You") {
 			lp = Instantiate(_instance.youLine_ins);
-			lp.transform.position = new Vector3(_instance.scrollTransorm.position.x + 660, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+			lp.transform.position = new Vector3(_instance.scrollTransorm.position.x + Screen.width * 660 / 768, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
 		}
 		else {
 			lp = Instantiate(_instance.speech_ins);
@@ -86,6 +86,15 @@ public class GameManager : MonoBehaviour {
 
 		lp.transform.SetParent(_instance.scrollTransorm);
 		lp.SetText(speechLine._content);
+
+		Debug.Log(speechLine._content.Length.ToString());
+
+		if (speechLine._content.Length > 12) { // vertical expand
+			Vector3 vec3 = lp.GetComponentInChildren<Button>().transform.localScale;
+            lp.GetComponentInChildren<Button>().transform.localScale = new Vector3(vec3.x, vec3.y * (speechLine._content.Length / 12 + 1), vec3.z);
+			vec3 = lp.GetComponentInChildren<Text>().transform.localScale;
+			lp.GetComponentInChildren<Text>().transform.localScale = new Vector3(vec3.x, vec3.y / (speechLine._content.Length / 12 + 1), vec3.z); 
+        }
 
 		Image ins = _instance.imageManager.GetImageByName(speechLine._person);
 		if (ins != null) {
@@ -102,7 +111,7 @@ public class GameManager : MonoBehaviour {
 		smsg.transform.SetParent(_instance.scrollTransorm);
 		smsg.SetText(sysLine._content);
 
-		smsg.transform.position = new Vector3(_instance.scrollTransorm.position.x + 240, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
+		smsg.transform.position = new Vector3(_instance.scrollTransorm.position.x + 340 * Screen.width / 768, _instance.scrollTransorm.position.y - 40 - 60 * _instance.speech_count - 40 * _instance.system_count);
 
 		_instance.system_count++;
 	}
