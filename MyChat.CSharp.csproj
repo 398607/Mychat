@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>5.2.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -72,12 +74,19 @@
     <Compile Include="Assets\Script\Line\Line.cs" />
     <Compile Include="Assets\Script\Line\SpeechLine.cs" />
     <Compile Include="Assets\Script\Line\SystemLine.cs" />
+    <Compile Include="Assets\Script\Line\WaitLine.cs" />
     <Compile Include="Assets\Script\LinePrefab\LinePrefab.cs" />
     <Compile Include="Assets\Script\LinePrefab\Speech.cs" />
     <Compile Include="Assets\Script\LinePrefab\SystemMessage.cs" />
     <Compile Include="Assets\Script\LinePrefab\YouLine.cs" />
     <Compile Include="Assets\Script\Manager\GameManager.cs" />
     <Compile Include="Assets\Script\Manager\PlotManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="test.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

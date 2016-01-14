@@ -1,6 +1,3 @@
-﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
-
-public class YouLine : LinePrefab {
+﻿public class YouLine : LinePrefab
+{
 }
