@@ -2,14 +2,19 @@
 {
 	public string _content;
 
-	public SystemLine(string content)
+	public SystemLine(string content = "***")
 	{
 		_content = content;
 	}
 
-	public override bool React()
+	public override void React()
 	{
 		GameManager.GetNewSystemMessage(this);
-		return true;
+	}
+
+	public override void Build(string[] lineEle)
+	{
+		// Sys <timeDelay> <content> [<askVar> <askValue>]
+		_content = lineEle[2];
 	}
 }

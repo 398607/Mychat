@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class WaitLine : Line
@@ -6,23 +7,29 @@ public class WaitLine : Line
 	public int WaitIndex;
 	public int WaitValue;
 
-	public WaitLine(int waitIndex, int waitValue)
+	public WaitLine(int waitIndex = 0, int waitValue = 0)
 	{
 		WaitIndex = waitIndex;
 		WaitValue = waitValue;
 	}
 
-	public override bool React()
+	public override void React()
 	{
 		while (!GameManager.FitAsked(WaitIndex, WaitValue))
 		{
 			Wait();
 		}
-		return true;
 	}
 
-	private IEnumerator Wait()
+	private static IEnumerator Wait()
 	{
 		yield return new WaitForSeconds(1f);
+	}
+
+	public override void Build(string[] lineEle)
+	{
+		// Wait <wait_index> <wait_value> [<askVar> <askValue>]
+		WaitIndex = Convert.ToInt32(lineEle[1]);
+		WaitValue = Convert.ToInt32(lineEle[2]);
 	}
 }

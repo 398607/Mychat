@@ -1,4 +1,6 @@
-﻿public class SpeechLine : Line
+﻿using System;
+
+public class SpeechLine : Line
 {
 	public string _content;
 	public string _person;
@@ -9,9 +11,15 @@
 		_content = content;
 	}
 
-	public override bool React()
+	public override void React()
 	{
 		GameManager.GetNewSpeech(this);
-		return true;
+	}
+
+	public override void Build(string[] lineEle)
+	{
+		// Sp <timeDelay> <person> <content> [<askVar> <askValue>]
+		_person = lineEle[2];
+		_content = lineEle[3];
 	}
 }

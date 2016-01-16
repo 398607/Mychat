@@ -48,6 +48,7 @@
 - choice_k：
 编号为k（从0开始）的选项的文本内容。选择编号为k的选项会使得编号为aff_index的全局变量的值变为k。
 需要注意的是，由于作者的实现十分丑陋，目前禁止出现以数字开头的选择文本（会被错认为是askVar）。
+此外，请不要以此方式修改编号为0的全局变量（0，0为askVar，askValue的缺省值）。
 
 ## WaitLine 死锁
 	Wait <wait_index> <wait_value> [<askVar> <askValue>]
@@ -55,6 +56,13 @@
 添加了多剧本并行处理之后，此类剧本单元可以用来维持各个分剧本的时间一致性。
 - wait_index，wait_value：
 当处理此剧本单元时，该剧本停止继续计算——即卡死。此后每一秒钟检查一次，仅当编号为wait_index的全局变量值为wait_value时才继续处理其后的剧本单元。
+
+## SetLine 标记
+	Set <set_index> <set_value> [<askVar> <askValue>]
+- 说明：
+自动设置全局变量的值，主要用来标记该段剧本的发展状况，例如某句话是否出现、某个分歧点是否已经经过。
+- set_index, set_value：
+该剧本单元处理时，将会把编号为set_index的全局变量的值赋为set_value。同样地，请不要以此方式修改编号为0的全局变量。
 
 ## Comment 注释
 	// <comment>

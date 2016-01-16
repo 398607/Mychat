@@ -1,4 +1,9 @@
 ﻿public abstract class Line
 {
-	public abstract bool React();
+	public abstract void React();
+
+	public virtual void Build(string[] lineEle)
+	{
+		
+	}
 }
