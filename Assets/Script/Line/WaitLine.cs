@@ -13,7 +13,7 @@ public class WaitLine : Line
 		WaitValue = waitValue;
 	}
 
-	public override void React()
+	public override void React(string plotName)
 	{
 		while (!GameManager.FitAsked(WaitIndex, WaitValue))
 		{

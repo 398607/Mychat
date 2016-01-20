@@ -13,7 +13,7 @@ public class SetLine : Line
 		_value = value;
 	}
 
-	public override void React()
+	public override void React(string plotName)
 	{
 		GameManager.SetGlobalVarible(_index, _value);
 	}

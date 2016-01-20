@@ -11,7 +11,7 @@ public class SpeechLine : Line
 		_content = content;
 	}
 
-	public override void React()
+	public override void React(string plotName)
 	{
 		GameManager.GetNewSpeech(this);
 	}

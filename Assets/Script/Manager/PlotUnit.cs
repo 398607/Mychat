@@ -13,7 +13,7 @@ public class PlotUnit
 
 	public PlotUnit()
 	{
-		Delay = -0f;
+		Delay = -1f;
 		AskedVar = 0;
 		AskedValue = 0;
 	}
@@ -105,8 +105,8 @@ public class PlotUnit
 
 	private void SetAskedVarValue(string[] lineEle, int varIndex, int valueIndex)
 	{
-		AskedVar = Convert.ToInt32(lineEle[3]);
-		AskedValue = Convert.ToInt32(lineEle[4]);
+		AskedVar = Convert.ToInt32(lineEle[varIndex]);
+		AskedValue = Convert.ToInt32(lineEle[valueIndex]);
 	}
 }
 

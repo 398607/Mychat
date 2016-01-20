@@ -32,7 +32,7 @@ public class ChoiceLine : Line
 		_list = list;
 	}
 
-	public override void React()
+	public override void React(string plotName)
 	{
 		GameManager.GetNewChoice(this);
 	}

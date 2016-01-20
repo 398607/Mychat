@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 
-public class PlotManager : ScriptableObject
+public class PlotManager
 {
 	// about control
 	private int _nextLineIndex;
@@ -49,7 +49,7 @@ public class PlotManager : ScriptableObject
 
 		foreach (var line in testFile)
 		{
-			Debug.Log(line);
+			// Debug.Log(line);
 
 			var tmpPlotUnit = new PlotUnit();
 			tmpPlotUnit.Build(line);
@@ -67,7 +67,7 @@ public class PlotManager : ScriptableObject
 		if (GameManager.FitAsked(nextUnit.AskedVar, nextUnit.AskedValue))
 		{
 			_time = 0f;
-			nextUnit.Line.React();
+			nextUnit.Line.React(PlotName);
 			_nextLineIndex++;
 		}
 		else
