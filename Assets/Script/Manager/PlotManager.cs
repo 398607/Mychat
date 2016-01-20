@@ -32,7 +32,7 @@ public class PlotManager
 
 	public void LoadUnitList()
 	{
-		var fileName = PlotName + ".txt";
+		var fileName = @"PlotFile\" + PlotName + ".txt";
 
 		if (_plotUnitList == null)
 		{
@@ -52,7 +52,7 @@ public class PlotManager
 			// Debug.Log(line);
 
 			var tmpPlotUnit = new PlotUnit();
-			tmpPlotUnit.Build(line);
+			tmpPlotUnit.Build(line.Replace("\t", ""));
 
 			if (tmpPlotUnit.Delay < 0f)
 				continue;

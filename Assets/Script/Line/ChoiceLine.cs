@@ -34,7 +34,7 @@ public class ChoiceLine : Line
 
 	public override void React(string plotName)
 	{
-		GameManager.GetNewChoice(this);
+		GameManager.GetNewChoice(this, plotName);
 	}
 
 	public override void Build(string[] lineEle)

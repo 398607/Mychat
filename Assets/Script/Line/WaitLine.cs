@@ -15,15 +15,7 @@ public class WaitLine : Line
 
 	public override void React(string plotName)
 	{
-		while (!GameManager.FitAsked(WaitIndex, WaitValue))
-		{
-			Wait();
-		}
-	}
-
-	private static IEnumerator Wait()
-	{
-		yield return new WaitForSeconds(1f);
+		GameManager.GetNewWait(this, plotName);
 	}
 
 	public override void Build(string[] lineEle)

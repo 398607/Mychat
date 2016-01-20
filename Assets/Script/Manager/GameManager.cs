@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
 
 public class ImageManager
 {
 	private Dictionary<string, Image> _dict;
 
-	public string[] NameList = {"You", "npc1", "npc2", "npc3"};
+	public string[] NameList = {"You", "jf", "bt"};
 
 	public ImageManager()
 	{
@@ -36,82 +38,80 @@ public class ImageManager
 
 public class GameManager : MonoBehaviour
 {
-	public enum State
-	{
-		Flowing,
-		WaitForChoice
-	}
-
 	// skeleton
-	private static GameManager _instance;
+	public static GameManager Instance;
 
-	// plot manager
-	private List<PlotManager> _plotManagers = new List<PlotManager>();
-	private int _nowFocusPlot;
+	// plot manager and plot choose
+	private readonly Dictionary<string, PlotDisplay> _plotDisplays = new Dictionary<string, PlotDisplay>();
+	private PlotChoose _plotChoose;
+
+	// view panel manager
+	private readonly Dictionary<string, ViewPanel> _viewPanels = new Dictionary<string, ViewPanel>();
+	private string _nowFocusPanel;
 
 	// plot name board
 	private Text _plotNameBoard;
 
-	// choice global
+	// global varibles
 	private readonly int[] _globalVaribles = new int[100];
 
 	// Image usage
 	private ImageManager _imageManager;
 
-	// choosing
+	// choosing and choiceBoardTransform for plotdisplay
 	private Button _choiceButton;
-	private Transform _choiceBoardTransform;
-	private int _nowAffIndex;
-	private ChoiceLine _nowChoiceLine;
+	public Transform ChoiceBoardTransform;
 
-	// show area
-	private Transform _scrollTransorm;
-	private float _nextLinePositionY;
-	private float _targetPositionY;
+	// scrollTransform for plotdisplay
+	public Transform ScrollTransorm;
+
+	// auto scroll speed
 	private float _scrollVelocity;
 
-	// speech usage
+	// line perfab usage
 	private Speech _speechIns;
-
-	// state
-	public State GameState;
-
 	private SystemMessage _sysMessageIns;
 	private YouLine _youLineIns;
-
-	// get the statci plotnameboard
-	private static Text PlotNameBoard()
+	
+	// (re)set plot name
+	private static void SetPlotName(string newName)
 	{
-		return _instance._plotNameBoard;
+		Instance._plotNameBoard.text = newName;
 	}
 
-	// (re)set plot name
-	private static void SetPlotName()
+	// set focus
+	public static void SetFocusPlot(string plotName)
 	{
-		PlotNameBoard().text = _instance._plotManagers[_instance._nowFocusPlot].PlotName;
+		if (plotName != Instance._nowFocusPanel && Instance._nowFocusPanel != null)
+		{
+			Instance._viewPanels[Instance._nowFocusPanel].FocusOff();
+		}
+		Instance._viewPanels[plotName].FocusOn();
+		Instance._nowFocusPanel = plotName;
+		SetPlotName(plotName);
 	}
 
 	// handle new SpeechLine
-	public static void GetNewSpeech(SpeechLine speechLine)
+	public static void GetNewSpeech(SpeechLine speechLine, string plotName)
 	{
 		// build line prefab 
 		LinePrefab lp;
 		if (speechLine._person == "You")
 		{
-			lp = Instantiate(_instance._youLineIns);
-			lp.transform.position = new Vector3(_instance._scrollTransorm.position.x + Screen.width*540f/600,
-				_instance._scrollTransorm.position.y - 40 - _instance._nextLinePositionY);
+			lp = Instantiate(Instance._youLineIns);
+			lp.transform.position = new Vector3(Instance._plotDisplays[plotName].ScrollTransorm.position.x + 320,
+				Instance._plotDisplays[plotName].ScrollTransorm.position.y - 40 - Instance._plotDisplays[plotName].NextLinePositionY);
 		}
 		else // npc talking
 		{
-			lp = Instantiate(_instance._speechIns);
-			lp.transform.position = new Vector3(_instance._scrollTransorm.position.x + 25,
-				_instance._scrollTransorm.position.y - 40 - _instance._nextLinePositionY);
+			lp = Instantiate(Instance._speechIns);
+			lp.transform.position = new Vector3(Instance._plotDisplays[plotName].ScrollTransorm.position.x + 25,
+				Instance._plotDisplays[plotName].ScrollTransorm.position.y - 40 - Instance._plotDisplays[plotName].NextLinePositionY);
 		}
 
-		
+		Debug.Log(speechLine._content + lp.transform.position.ToString());
 		// set parent to scroll content, set text
-		lp.transform.SetParent(_instance._scrollTransorm);
+		lp.transform.SetParent(Instance._plotDisplays[plotName].ScrollTransorm);
 		lp.SetText(speechLine._content);
 		
 		var deltaY = 1f;
@@ -136,10 +136,10 @@ public class GameManager : MonoBehaviour
 		}
 
 		// update next line position
-		_instance._nextLinePositionY += 60 + 33 * (deltaY - 1);
+		Instance._plotDisplays[plotName].NextLinePositionY += 60 + 33 * (deltaY - 1);
 
 		// show speaker image
-		var ins = _instance._imageManager.GetImageByName(speechLine._person);
+		var ins = Instance._imageManager.GetImageByName(speechLine._person);
 		if (ins != null)
 		{
 			var ime = Instantiate(ins);
@@ -151,41 +151,40 @@ public class GameManager : MonoBehaviour
 		if (lp.transform.position.y - 21 * deltaY - 12 < 125)
 		{
 			// _instance._scrollTransorm.Translate(new Vector3(0, 150 - lp.transform.position.y, 0));
-			_instance._targetPositionY = _instance._scrollTransorm.position.y + 125 - lp.transform.position.y + 21 * deltaY + 12;
+			Instance._plotDisplays[plotName].TargetPositionY = Instance._plotDisplays[plotName].ScrollTransorm.position.y + 125 - lp.transform.position.y + 21 * deltaY - 40;
 		}
 	}
 
 	// handle new SystemLine
-	public static void GetNewSystemMessage(SystemLine sysLine)
+	public static void GetNewSystemMessage(SystemLine sysLine, string plotName)
 	{
-		var smsg = Instantiate(_instance._sysMessageIns);
-		smsg.transform.SetParent(_instance._scrollTransorm);
+		var smsg = Instantiate(Instance._sysMessageIns);
+		smsg.transform.SetParent(Instance._plotDisplays[plotName].ScrollTransorm);
 		smsg.SetText(sysLine._content);
 
-		smsg.transform.position = new Vector3(_instance._scrollTransorm.position.x + 350f*Screen.width/1024,
-			_instance._scrollTransorm.position.y - 40 - _instance._nextLinePositionY);
+		smsg.transform.position = new Vector3(Instance._plotDisplays[plotName].ScrollTransorm.position.x + 70f*Screen.width/600,
+			Instance._plotDisplays[plotName].ScrollTransorm.position.y - 40 - Instance._plotDisplays[plotName].NextLinePositionY);
 
-		if (smsg.transform.position.y < 160)
+		if (smsg.transform.position.y < 150)
 		{
-			_instance._scrollTransorm.Translate(new Vector3(0, 50, 0));
+			Instance._plotDisplays[plotName].TargetPositionY = Instance._plotDisplays[plotName].ScrollTransorm.position.y + 150 - smsg.transform.position.y - 40;
 		}
 
-		_instance._nextLinePositionY += 40;
-		
+		Instance._plotDisplays[plotName].NextLinePositionY += 40;
 	}
 
 	// handle new ChoiceLine
-	public static void GetNewChoice(ChoiceLine choiceLine)
+	public static void GetNewChoice(ChoiceLine choiceLine, string plotName)
 	{
-		_instance.GameState = State.WaitForChoice;
+		Instance._plotDisplays[plotName].PlotState = PlotDisplay.State.WaitForChoice;
 
-		_instance._nowChoiceLine = choiceLine;
-		_instance._nowAffIndex = choiceLine._affindex;
+		Instance._plotDisplays[plotName].NowChoiceLine = choiceLine;
+		Instance._plotDisplays[plotName].NowAffIndex = choiceLine._affindex;
 
 		for (var i = 0; i < choiceLine._list.Count; i++)
 		{
-			var btn = Instantiate(_instance._choiceButton);
-			btn.transform.SetParent(_instance._choiceBoardTransform);
+			var btn = Instantiate(Instance._choiceButton);
+			btn.transform.SetParent(Instance._plotDisplays[plotName].ChoiceBoardTransform);
 			btn.name = i.ToString();
 
 			btn.transform.localPosition = new Vector3(0, -10);
@@ -196,52 +195,63 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+	// handle new WaitLine
+	public static void GetNewWait(WaitLine waitLine, string plotName)
+	{
+		Instance._plotDisplays[plotName].GetWait(waitLine.WaitIndex, waitLine.WaitValue);
+	}
+
 	// get user choice
 	public static void GetUserChoice(Button btnObj = null)
 	{
 		// adjust varible
-		SetGlobalVarible(_instance._nowAffIndex, Convert.ToInt32(btnObj.name));
+		SetGlobalVarible(Instance._plotDisplays[Instance._nowFocusPanel].NowAffIndex, Convert.ToInt32(btnObj.name));
 
 		// show choice 
-		GetNewSpeech(new SpeechLine("You", _instance._nowChoiceLine._list[Convert.ToInt32(btnObj.name)].Content));
+		GetNewSpeech(new SpeechLine("You", Instance._plotDisplays[Instance._nowFocusPanel].NowChoiceLine._list[Convert.ToInt32(btnObj.name)].Content), Instance._nowFocusPanel);
 
-		// un-pause time flow
-		_instance.GameState = State.Flowing;
+		Button[] btnObjects =
+			Instance._plotDisplays[Instance._nowFocusPanel].ChoiceBoardTransform.GetComponentsInChildren<Button>();
+		
+		foreach (var btn in btnObjects)
+		{
+			Destroy(btn.gameObject);
+		}
+
+		// back to flow
+		Instance._plotDisplays[Instance._nowFocusPanel].PlotState = PlotDisplay.State.Flowing;
 	}
 
+	// set global varible
 	public static void SetGlobalVarible(int index, int value)
 	{
-		_instance._globalVaribles[index] = value;
+		Instance._globalVaribles[index] = value;
 	}
 
 	// if the varible asked is OK
 	public static bool FitAsked(int askVar, int askVal)
 	{
-		return _instance._globalVaribles[askVar] == askVal;
+		return Instance._globalVaribles[askVar] == askVal;
 	}
-
-	// return current state of game
-	public static State GetState()
-	{
-		return _instance.GameState;
-	}
-
+	
+	// showboard auto scroll (with update)
 	private void AutoScroll()
 	{
-		if (_instance._scrollTransorm.position.y < _targetPositionY)
+		foreach (var plot in _plotDisplays.Values)
 		{
-			_instance._scrollTransorm.Translate(new Vector3(0, Mathf.Min(_scrollVelocity * Time.deltaTime, _targetPositionY - _instance._scrollTransorm.position.y), 0));
+			if (Mathf.Abs(plot.ScrollTransorm.position.y - plot.TargetPositionY) > 5)
+			{
+				plot.ScrollTransorm.Translate(new Vector3(0, Mathf.Min(_scrollVelocity * Time.deltaTime, plot.TargetPositionY - plot.ScrollTransorm.position.y), 0));
+			}
 		}
 	}
 
+	// init
 	private void Init()
 	{
 		// plot name board
 		_plotNameBoard = GameObject.Find("PlotNameBoard").GetComponent<Text>();
-
-		// state
-		GameState = State.Flowing;
-
+		
 		// instance of line prefab
 		_speechIns = FindObjectOfType<Speech>();
 		_youLineIns = FindObjectOfType<YouLine>();
@@ -249,32 +259,66 @@ public class GameManager : MonoBehaviour
 
 		// instance of choice button
 		_choiceButton = GameObject.Find("ChoiceButton").GetComponent<Button>();
-		_choiceBoardTransform = GameObject.Find("ChoiceBoard").transform;
+		ChoiceBoardTransform = GameObject.Find("ChoiceBoard").transform;
 
 		// get scroll
-		_scrollTransorm = GameObject.Find("Content").transform;
-		_targetPositionY = -1f;
-		_scrollVelocity = 100f;
-		_nextLinePositionY = 0;
+		ScrollTransorm = GameObject.Find("Content").transform;
+		_scrollVelocity = 200f;
 
 		// speaker image manager
 		_imageManager = new ImageManager();
 		_imageManager.LoadImage();
 
-		// plot manager(s)
-		// TODO: more plot managers
-		_plotManagers.Add(new PlotManager("test"));
-		_nowFocusPlot = 0;
-		SetPlotName();
+		// plot choose panel
+		_plotChoose = new PlotChoose();
+		_viewPanels.Add("Home", _plotChoose);
+
+		// home button
+		var homeBtn = GameObject.Find("Home").GetComponent<Button>();
+		homeBtn.onClick.AddListener(delegate() {GameManager.SetFocusPlot("Home"); });
+		
+		// load plots
+		LoadPlots();
+		
+		// set focus to home (plot choose)
+		SetFocusPlot("Home");
+	}
+
+	// find plot list and load all plots written
+	private void LoadPlots()
+	{
+		var fileName = @"PlotFile\plot_name_info.ini";
+
+		if (!File.Exists(fileName))
+			return;
+
+		var plotNames = File.ReadAllLines(fileName);
+
+		foreach (var plotName in plotNames)
+		{
+			if (plotName.Length > 0)
+			{
+				LoadPlot(plotName);
+			}
+		}
+	}
+
+	// load a plot
+	private void LoadPlot(string plotName)
+	{
+		var plotDisplay = new PlotDisplay(plotName);
+		_plotDisplays.Add(plotName, plotDisplay);
+		_viewPanels.Add(plotName, plotDisplay);
+		_plotChoose.GetPlot(plotName);
 	}
 
 	// Use this for initialization
 	private void Start()
 	{
 		// singleton
-		if (_instance == null)
+		if (Instance == null)
 		{
-			_instance = this;
+			Instance = this;
 		}
 		else
 		{
@@ -289,28 +333,12 @@ public class GameManager : MonoBehaviour
 	{
 		// Auto scroll
 		AutoScroll();
-		
-		// TODO: plotmanagers update/controll seperately
-		switch (GetState())
+
+		// plots update
+		foreach (var plot in _plotDisplays.Values)
 		{
-			// Flowing: plot update
-			case State.Flowing:
-			{
-				foreach (var plotManager in _plotManagers)
-				{
-					plotManager.Update();
-				}
-				break;
-			}
-			// WaitForChoice: handle user action
-			case State.WaitForChoice:
-			{
-				break;
-			}
-			default:
-			{
-				break;
-			}
+			plot.Update();
 		}
+		
 	}
 }

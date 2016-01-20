@@ -9,7 +9,7 @@
 
 	public override void React(string plotName)
 	{
-		GameManager.GetNewSystemMessage(this);
+		GameManager.GetNewSystemMessage(this, plotName);
 	}
 
 	public override void Build(string[] lineEle)

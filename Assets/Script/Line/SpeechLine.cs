@@ -13,7 +13,7 @@ public class SpeechLine : Line
 
 	public override void React(string plotName)
 	{
-		GameManager.GetNewSpeech(this);
+		GameManager.GetNewSpeech(this, plotName);
 	}
 
 	public override void Build(string[] lineEle)
