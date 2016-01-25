@@ -22,7 +22,6 @@ public class PlotDisplay : ViewPanel
 
 	// scroll
 	public float NextLinePositionY;
-	public float TargetPositionY;
 
 	public State PlotState;
 
@@ -31,8 +30,7 @@ public class PlotDisplay : ViewPanel
 		PlotState = State.Flowing;
 
 		PlotManager = new PlotManager(name);
-
-		TargetPositionY = -1f;
+		
 		NextLinePositionY = 0;
 	}
 

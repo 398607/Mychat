@@ -6,6 +6,9 @@ public class ViewPanel : UnityEngine.Object
 	public Transform ChoiceBoardTransform;
 	public Transform ScrollTransorm;
 
+	// scroll
+	public float TargetPositionY;
+
 	public ViewPanel(string name = "test")
 	{
 		ScrollTransorm = Instantiate(GameManager.Instance.ScrollTransorm);
@@ -13,6 +16,8 @@ public class ViewPanel : UnityEngine.Object
 
 		ChoiceBoardTransform = Instantiate(GameManager.Instance.ChoiceBoardTransform);
 		ChoiceBoardTransform.SetParent(GameObject.Find("GameManager").transform);
+
+		TargetPositionY = 0f;
 	}
 
 	// set this panel as focus

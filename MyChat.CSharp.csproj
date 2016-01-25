@@ -79,8 +79,11 @@
     <Compile Include="Assets\Script\LinePrefab\SystemMessage.cs" />
     <Compile Include="Assets\Script\LinePrefab\YouLine.cs" />
     <Compile Include="Assets\Script\Manager\GameManager.cs" />
+    <Compile Include="Assets\Script\Manager\PlotChoose.cs" />
+    <Compile Include="Assets\Script\Manager\PlotDisplay.cs" />
     <Compile Include="Assets\Script\Manager\PlotManager.cs" />
     <Compile Include="Assets\Script\Manager\PlotUnit.cs" />
+    <Compile Include="Assets\Script\Manager\ViewPanel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

@@ -86,6 +86,8 @@ public class GameManager : MonoBehaviour
 		{
 			Instance._viewPanels[Instance._nowFocusPanel].FocusOff();
 		}
+		if (Instance._viewPanels[plotName].TargetPositionY > 0f)
+			Instance.ScrollTransorm.transform.Translate(0, Instance._viewPanels[plotName].TargetPositionY - Instance.ScrollTransorm.position.y, 0);
 		Instance._viewPanels[plotName].FocusOn();
 		Instance._nowFocusPanel = plotName;
 		SetPlotName(plotName);
@@ -100,16 +102,16 @@ public class GameManager : MonoBehaviour
 		{
 			lp = Instantiate(Instance._youLineIns);
 			lp.transform.position = new Vector3(Instance._plotDisplays[plotName].ScrollTransorm.position.x + 320,
-				Instance._plotDisplays[plotName].ScrollTransorm.position.y - 40 - Instance._plotDisplays[plotName].NextLinePositionY);
+				Instance._plotDisplays[plotName].ScrollTransorm.position.y - Instance._plotDisplays[plotName].NextLinePositionY);
 		}
 		else // npc talking
 		{
 			lp = Instantiate(Instance._speechIns);
 			lp.transform.position = new Vector3(Instance._plotDisplays[plotName].ScrollTransorm.position.x + 25,
-				Instance._plotDisplays[plotName].ScrollTransorm.position.y - 40 - Instance._plotDisplays[plotName].NextLinePositionY);
+				Instance._plotDisplays[plotName].ScrollTransorm.position.y - Instance._plotDisplays[plotName].NextLinePositionY);
 		}
 
-		Debug.Log(speechLine._content + lp.transform.position.ToString());
+		// Debug.Log(speechLine._content + lp.transform.position.ToString());
 		// set parent to scroll content, set text
 		lp.transform.SetParent(Instance._plotDisplays[plotName].ScrollTransorm);
 		lp.SetText(speechLine._content);
@@ -162,8 +164,8 @@ public class GameManager : MonoBehaviour
 		smsg.transform.SetParent(Instance._plotDisplays[plotName].ScrollTransorm);
 		smsg.SetText(sysLine._content);
 
-		smsg.transform.position = new Vector3(Instance._plotDisplays[plotName].ScrollTransorm.position.x + 70f*Screen.width/600,
-			Instance._plotDisplays[plotName].ScrollTransorm.position.y - 40 - Instance._plotDisplays[plotName].NextLinePositionY);
+		smsg.transform.position = new Vector3(Instance._plotDisplays[plotName].ScrollTransorm.position.x + 140,
+			Instance._plotDisplays[plotName].ScrollTransorm.position.y - Instance._plotDisplays[plotName].NextLinePositionY);
 
 		if (smsg.transform.position.y < 150)
 		{
@@ -275,7 +277,7 @@ public class GameManager : MonoBehaviour
 
 		// home button
 		var homeBtn = GameObject.Find("Home").GetComponent<Button>();
-		homeBtn.onClick.AddListener(delegate() {GameManager.SetFocusPlot("Home"); });
+		homeBtn.onClick.AddListener(delegate() {SetFocusPlot("Home"); });
 		
 		// load plots
 		LoadPlots();
