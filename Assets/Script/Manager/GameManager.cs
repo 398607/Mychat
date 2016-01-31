@@ -41,6 +41,8 @@ public class GameManager : MonoBehaviour
 	// skeleton
 	public static GameManager Instance;
 
+	// variables
+
 	// plot manager and plot choose
 	private readonly Dictionary<string, PlotDisplay> _plotDisplays = new Dictionary<string, PlotDisplay>();
 	private PlotChoose _plotChoose;
@@ -64,10 +66,9 @@ public class GameManager : MonoBehaviour
 
 	// scrollTransform for plotdisplay
 	public Transform ScrollTransorm;
-
 	// auto scroll speed
-	private float _scrollVelocity;
-
+	private readonly float _scrollVelocity = 1000f;
+	
 	// line perfab usage
 	private Speech _speechIns;
 	private SystemMessage _sysMessageIns;
@@ -79,18 +80,25 @@ public class GameManager : MonoBehaviour
 		Instance._plotNameBoard.text = newName;
 	}
 
+	// functions
+
 	// set focus
 	public static void SetFocusPlot(string plotName)
 	{
+		// focus off previous plot
 		if (plotName != Instance._nowFocusPanel && Instance._nowFocusPanel != null)
-		{
 			Instance._viewPanels[Instance._nowFocusPanel].FocusOff();
-		}
-		if (Instance._viewPanels[plotName].TargetPositionY > 0f)
-			Instance.ScrollTransorm.transform.Translate(0, Instance._viewPanels[plotName].TargetPositionY - Instance.ScrollTransorm.position.y, 0);
+
+		// move to target pos
+		Instance._viewPanels[plotName].ScrollTransorm.transform.Translate(0, Instance._viewPanels[plotName].TargetPositionY - Instance._viewPanels[plotName].ScrollTransorm.position.y, 0);
+
+		// focus on
 		Instance._viewPanels[plotName].FocusOn();
+
+		// let gamemanager know
 		Instance._nowFocusPanel = plotName;
 		SetPlotName(plotName);
+
 	}
 
 	// handle new SpeechLine
@@ -149,7 +157,7 @@ public class GameManager : MonoBehaviour
 			ime.transform.localPosition = new Vector3(0, 0, 0);
 		}
 
-		// when hidden, scroll to show
+		// when hidden, scroll to show (magic but works)
 		if (lp.transform.position.y - 21 * deltaY - 12 < 125)
 		{
 			// _instance._scrollTransorm.Translate(new Vector3(0, 150 - lp.transform.position.y, 0));
@@ -167,6 +175,7 @@ public class GameManager : MonoBehaviour
 		smsg.transform.position = new Vector3(Instance._plotDisplays[plotName].ScrollTransorm.position.x + 140,
 			Instance._plotDisplays[plotName].ScrollTransorm.position.y - Instance._plotDisplays[plotName].NextLinePositionY);
 
+		// when hidden, scroll to show (magic but works)
 		if (smsg.transform.position.y < 150)
 		{
 			Instance._plotDisplays[plotName].TargetPositionY = Instance._plotDisplays[plotName].ScrollTransorm.position.y + 150 - smsg.transform.position.y - 40;
@@ -206,12 +215,17 @@ public class GameManager : MonoBehaviour
 	// get user choice
 	public static void GetUserChoice(Button btnObj = null)
 	{
+		// avoid null
+		if (btnObj == null)
+			return;
+
 		// adjust varible
 		SetGlobalVarible(Instance._plotDisplays[Instance._nowFocusPanel].NowAffIndex, Convert.ToInt32(btnObj.name));
 
 		// show choice 
 		GetNewSpeech(new SpeechLine("You", Instance._plotDisplays[Instance._nowFocusPanel].NowChoiceLine._list[Convert.ToInt32(btnObj.name)].Content), Instance._nowFocusPanel);
 
+		// clear choice board by killing all buttons on it
 		Button[] btnObjects =
 			Instance._plotDisplays[Instance._nowFocusPanel].ChoiceBoardTransform.GetComponentsInChildren<Button>();
 		
@@ -241,9 +255,10 @@ public class GameManager : MonoBehaviour
 	{
 		foreach (var plot in _plotDisplays.Values)
 		{
-			if (Mathf.Abs(plot.ScrollTransorm.position.y - plot.TargetPositionY) > 5)
+			var delta = plot.TargetPositionY - plot.ScrollTransorm.position.y;
+			if (Mathf.Abs(delta) > 0)
 			{
-				plot.ScrollTransorm.Translate(new Vector3(0, Mathf.Min(_scrollVelocity * Time.deltaTime, plot.TargetPositionY - plot.ScrollTransorm.position.y), 0));
+				plot.ScrollTransorm.Translate(new Vector3(0, Mathf.Min(_scrollVelocity * Time.deltaTime, delta), 0));
 			}
 		}
 	}
@@ -265,7 +280,6 @@ public class GameManager : MonoBehaviour
 
 		// get scroll
 		ScrollTransorm = GameObject.Find("Content").transform;
-		_scrollVelocity = 200f;
 
 		// speaker image manager
 		_imageManager = new ImageManager();
@@ -283,6 +297,7 @@ public class GameManager : MonoBehaviour
 		LoadPlots();
 		
 		// set focus to home (plot choose)
+		_nowFocusPanel = "Home"; // avoid bug when SetFocusPlot() is first called
 		SetFocusPlot("Home");
 	}
 
